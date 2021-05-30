@@ -5,14 +5,14 @@ function global(){
   
   // traer las hojas del archivo externo
   var hojaConjunta= archivoExterno.getSheetByName("base_conjunta");
-  var hojaMatch= archivoExterno.getSheetByName("match");
+  var hojaMatch= archivoExterno.getSheetByName("tarjetas");
 
 
-  //traer las ultimas filas y columnas
+  //traer las ultimas filas y columnas base conjunta
   var ultimaFilaConjunta= hojaConjunta.getLastRow();
   var ultimaColumnaConjunta= hojaConjunta.getLastColumn();
 
-  //traer las ultimas filas y columnas
+  //traer las ultimas filas y columnas tarjetas
   var ultimaFilaMatch= hojaMatch.getLastRow();
   var ultimaColumnaMatch= hojaMatch.getLastColumn();
 
@@ -26,29 +26,29 @@ function global(){
  /* */
 
 
-/*hacer el filtro mediante ciertas condiciones*/
-  var datos_filtrados= datos_originales.filter(function(item){
-    return item[1]=="T-3213"; // Iteracion
-  });
-/**/
 
-    contador=0
-    for (i=1; i<=5; i++){
 
-        console.log(i);
+
+    for (i=1; i<=arregloMatch.length-1; i++){
+
+      /*hacer el filtro mediante ciertas condiciones*/
+      var datos_filtrados= datos_originales.filter(function(item){
+      return item[1]==arregloMatch[i]; // Iteracion
+      });
+      /**/
 
       /***************************copia del archivo*********************************************** */
-        nombreCopia=("Ficha_" + contador);
+        nombreCopia=(datos_filtrados[0][3]);
         documentoCopiado= DriveApp.getFileById("1HGwuqgbpvKfwJEk6VPuyIuacJcWm8h4g6WxrAboVmDY").makeCopy(nombreCopia);
   
         var idNuevoDocumento = (documentoCopiado.getId());
-        contador=contador+1
+
       /**/
 
       /*********************filtrar solo las columnas que me interesan slice push******************/ //TUTORIAL
         var nuevoArreglo=[]
         for(var k=0;k<= datos_filtrados.length-1;k++){
-        var unoPorUno= datos_filtrados[k].slice(5,11);
+        var unoPorUno= datos_filtrados[k].slice(6,11);
         nuevoArreglo.push(unoPorUno);
         }
       /**/
@@ -64,42 +64,74 @@ function global(){
 
       /************************************pegar valores *************************************************/
   
-        //Pegar los datos filtrados en la hoja     //hoja.getRange(fila inicio, columna inicio, alto, ancho)
-        var rangoAPegar= hojaPlantilla.getRange(12,7, datos_filtrados.length,datos_filtrados[0].length);
-        rangoAPegar.setValues(datos_filtrados)
-
-        //Pegar los datos nuevo Arreglo
-        var rangoAPegar= hojaPlantilla.getRange(20,7, nuevoArreglo.length,nuevoArreglo[0].length);
+        //Pegar la tabla
+        var rangoAPegar= hojaPlantilla.getRange(12,1, nuevoArreglo.length,nuevoArreglo[0].length);
         rangoAPegar.setValues(nuevoArreglo)
 
-        //pegar un valor solitario
-        var rangoAPegar= hojaPlantilla.getRange(5,2);
+        //pegar la marca
+        var rangoAPegar= hojaPlantilla.getRange(7,2);
+        // arreglo[0][3] [fila] [columna]
+        rangoAPegar.setValue(datos_filtrados[0][11])
+
+        //pegar el territorio
+        var rangoAPegar= hojaPlantilla.getRange(7,5);
+        // arreglo[0][3] [fila] [columna]
+        rangoAPegar.setValue(datos_filtrados[0][4])
+        
+        //pegar placas
+        var rangoAPegar= hojaPlantilla.getRange(8,2);
+        // arreglo[0][3] [fila] [columna]
+        rangoAPegar.setValue(datos_filtrados[0][5])
+
+        //pegar monedero
+        var rangoAPegar= hojaPlantilla.getRange(9,2);
         // arreglo[0][3] [fila] [columna]
         rangoAPegar.setValue(datos_filtrados[0][2])
-        
-        // hacer la suma y pegarla //TUTORIAL
+
+        //pegar el resguardante
+        var rangoAPegar= hojaPlantilla.getRange(29,4);
+        // arreglo[0][3] [fila] [columna]
+        rangoAPegar.setValue(datos_filtrados[0][3])
+
+
+        // hacer la suma de litros y pegarla //TUTORIAL
+        var suma = 0
+        for (l=0;l<=nuevoArreglo.length-1;l++) {
+        //var suma_total_dos= suma_total_dos+ nuevoArreglo[i][1]
+        columna=2;
+        var valorASumar= nuevoArreglo[l][columna];
+        var suma = suma + valorASumar;
+        }
+
+        //pegar la suma de litros
+        var rangoAPegar= hojaPlantilla.getRange(24,3);
+        rangoAPegar.setValue(suma)
+
+
+        // hacer la suma del importe y pegarla //TUTORIAL
         var suma = 0
         for (j=0;j<=nuevoArreglo.length-1;j++) {
         //var suma_total_dos= suma_total_dos+ nuevoArreglo[i][1]
-        columna=2;
+        columna=3;
         var valorASumar= nuevoArreglo[j][columna];
         var suma = suma + valorASumar;
         }
 
-        //pegar la suma
-        var rangoAPegar= hojaPlantilla.getRange(5,4);
+        //pegar la suma de importe
+        var rangoAPegar= hojaPlantilla.getRange(24,4);
         rangoAPegar.setValue(suma) 
+
+
       /**/
 
     } //aquì termina el for
 
 
-
 }// aqui termina la funcion global
 
 
-/*todos los datos de los valores a pegar deben de estar en la hoja conjunta*/
-/*falta iterar listado*/
+
+
 /*poner en carpetas*
 /* hacerlo con botones*/
 
